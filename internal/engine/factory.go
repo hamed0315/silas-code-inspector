@@ -8,6 +8,7 @@ import (
 	funcc "github.com/silasdev78/silas-code-inspector/internal/engine/func"
 	"github.com/silasdev78/silas-code-inspector/internal/engine/golang"
 	"github.com/silasdev78/silas-code-inspector/internal/engine/gomod"
+	solidity "github.com/silasdev78/silas-code-inspector/internal/engine/solidity"
 	"github.com/silasdev78/silas-code-inspector/internal/engine/tact"
 	"github.com/silasdev78/silas-code-inspector/internal/engine/web"
 )
@@ -30,6 +31,8 @@ func NewScanner(lang string) (Scanner, error) {
 		return gomod.NewScanner(), nil
 	case "func", "fift", "fc":
 		return funcc.NewScanner(), nil
+	case "solidity", "sol":
+		return solidity.NewScanner(), nil
 	default:
 		return nil, fmt.Errorf("unsupported language: %s", lang)
 	}

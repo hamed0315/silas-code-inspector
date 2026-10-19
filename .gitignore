@@ -1,0 +1,26 @@
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+silas
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Reports & Artifacts
+*.json
+*.sarif
+*.zip
+*_target/
+
+# Env
+.env

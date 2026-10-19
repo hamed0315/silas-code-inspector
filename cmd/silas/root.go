@@ -26,7 +26,7 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "silas [file or directory]",
 	Short: "Silas Code Inspector - multi-language security scanner",
-	Long:  "Scans TON (Tact, FunC), Go, Docker, Web, and Go module files for vulnerabilities.",
+	Long:  "Scans TON (Tact, FunC), Solidity (EVM), Go, Docker, Web, and Go module files for vulnerabilities.",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		target := args[0]
@@ -70,7 +70,7 @@ var rootCmd = &cobra.Command{
 				fmt.Fprintf(os.Stderr, "Error writing SARIF: %v\n", err)
 			}
 		default:
-			// text output already printed by scanFile if we didn't --summary
+			// text output already printed by scanFile
 		}
 
 		if learnerFlag && l != nil {
@@ -84,9 +84,7 @@ var rootCmd = &cobra.Command{
 func scanFile(path string, l *learner.Learner) report.Result {
 	lang := detectLang(path)
 	if lang == "" {
-		if !summaryFlag {
-			color.Yellow("Skipping unsupported file: %s\n", path)
-		}
+		color.Yellow("Skipping unsupported file: %s\n", path)
 		return report.Result{File: path}
 	}
 
@@ -98,9 +96,7 @@ func scanFile(path string, l *learner.Learner) report.Result {
 
 	scanner, err := engine.NewScanner(lang)
 	if err != nil {
-		if !summaryFlag {
-			color.Yellow("Unsupported language for %s: %v\n", path, err)
-		}
+		color.Yellow("Unsupported language for %s: %v\n", path, err)
 		return report.Result{File: path}
 	}
 
@@ -134,6 +130,7 @@ func scanDirectory(dir string, l *learner.Learner) []report.Result {
 		".js":   "web",
 		".ts":   "web",
 		".mod":  "gomod",
+		".sol":  "solidity",
 	}
 
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -181,6 +178,8 @@ func detectLang(path string) string {
 		return "gomod"
 	case ext == ".tact":
 		return "tact"
+	case ext == ".sol":
+		return "solidity"
 	case ext == ".fc" || ext == ".fif":
 		return "func"
 	case ext == ".go":
@@ -268,7 +267,7 @@ func printSummary(results []report.Result) {
 }
 
 func main() {
-	rootCmd.Flags().StringVarP(&langFlag, "lang", "l", "", "Force language (go, docker, web, tact, func, gomod)")
+	rootCmd.Flags().StringVarP(&langFlag, "lang", "l", "", "Force language (go, docker, web, tact, func, solidity, gomod)")
 	rootCmd.Flags().StringVarP(&outputFlag, "output", "o", "text", "Output format: text, json, sarif")
 	rootCmd.Flags().BoolVar(&learnerFlag, "learner", false, "Enable adaptive learning (requires .silas-state.json)")
 	rootCmd.Flags().BoolVar(&summaryFlag, "summary", false, "Show a summary of issues instead of detailed list")
